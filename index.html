@@ -146,8 +146,8 @@ try{var saved=localStorage.getItem("cofre-theme")||"blue";$("themePicker").value
 
 async function deriveKey(password,salt){var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:200000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
 async function encryptVault(){var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);var rec={v:1,salt:localStorage.getItem(STORAGE_KEY)?JSON.parse(localStorage.getItem(STORAGE_KEY)).salt:null,iv:b64(iv),data:b64(new Uint8Array(cipher))};localStorage.setItem(STORAGE_KEY,JSON.stringify(rec))}
-async function persistVault(){if(!cryptoKey)return;try{var old=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");var salt=old&&old.salt?bytes(old.salt):null;if(!salt){salt=crypto.getRandomValues(new Uint8Array(16));var oldKey=cryptoKey;/* key already derived from the salt used during setup */}var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);localStorage.setItem(STORAGE_KEY,JSON.stringify({v:1,salt:b64(salt),iv:b64(iv),data:b64(new Uint8Array(cipher))}));}catch(e){console.error(e);alert("Não foi possível salvar o cofre neste aparelho.")}}
-async function createVault(password){var salt=crypto.getRandomValues(new Uint8Array(16));cryptoKey=await deriveKey(password,salt);var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);localStorage.setItem(STORAGE_KEY,JSON.stringify({v:1,salt:b64(salt),iv:b64(iv),data:b64(new Uint8Array(cipher))}));setLocked(false);$("authModal").classList.remove("show");render();}
+async function persistVault(){if(!cryptoKey)return;try{var old=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");var salt=old&&old.salt?bytes(old.salt):null;if(!salt){salt=crypto.getRandomValues(new Uint8Array(16));var oldKey=cryptoKey;/* key already derived from the salt used during setup */}var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);localStorage.setItem(STORAGE_KEY,JSON.stringify({v:1,salt:b64(salt),iv:b64(iv),data:b64(new Uint8Array(cipher))}));window.dispatchEvent(new CustomEvent("cofre:vault-saved"));}catch(e){console.error(e);alert("Não foi possível salvar o cofre neste aparelho.")}}
+async function createVault(password){var salt=crypto.getRandomValues(new Uint8Array(16));cryptoKey=await deriveKey(password,salt);var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);localStorage.setItem(STORAGE_KEY,JSON.stringify({v:1,salt:b64(salt),iv:b64(iv),data:b64(new Uint8Array(cipher))}));window.dispatchEvent(new CustomEvent("cofre:vault-saved"));setLocked(false);$("authModal").classList.remove("show");render();}
 async function unlockVault(password){var rec=JSON.parse(localStorage.getItem(STORAGE_KEY));var salt=bytes(rec.salt);var key=await deriveKey(password,salt);var plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:bytes(rec.iv)},key,bytes(rec.data));var loaded=JSON.parse(new TextDecoder().decode(plain));if(!Array.isArray(loaded))throw new Error("Dados inválidos");cryptoKey=key;data=loaded;setLocked(false);$("authModal").classList.remove("show");$("authError").textContent="";render();}
 function openAuth(setup){var has=!!localStorage.getItem(STORAGE_KEY);$("authModal").classList.add("show");$("authTitle").textContent=has?"🔐 Desbloquear Cofre":"🔐 Criar senha mestra";$("authText").textContent=has?"Digite sua senha mestra para abrir o cofre. Ela não é enviada ao Firebase.":"Esta senha será usada para proteger e criptografar os dados do cofre neste aparelho. Ela não será salva no Firebase. Não a perca.";$("confirmWrap").style.display=has?"none":"block";$("authBtn").textContent=has?"🔓 Desbloquear cofre":"🔐 Criar e abrir o cofre";$("master1").value="";$("master2").value="";$("authError").textContent="";setTimeout(function(){$("master1").focus()},100)}
 $("authBtn").onclick=async function(){var p=$("master1").value;if(p.length<MIN_PASSWORD){$("authError").textContent="Use pelo menos "+MIN_PASSWORD+" caracteres.";return}try{if(localStorage.getItem(STORAGE_KEY)){await unlockVault(p)}else{if(p!==$("master2").value){$("authError").textContent="As senhas não coincidem.";return}await createVault(p)}}catch(e){cryptoKey=null;$("authError").textContent="Senha incorreta ou cofre inválido."}};
@@ -157,10 +157,11 @@ setLocked(true);render();openAuth(false);
 </script>
 
 
-<!-- Firebase: conexão do aplicativo com o projeto Cofre-Seguro.
-     Nenhuma senha ou chave Pix é enviada para o Firebase nesta etapa. -->
+<!-- Firebase: conexão e backup criptografado do aplicativo. -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyChZp2bseKghuo97i6A_XFe1StEcBhcDkE",
@@ -171,19 +172,55 @@ const firebaseConfig = {
   appId: "1:1076024528728:web:082349d5c9877857a31f2d"
 };
 
+const status = document.getElementById("firebaseStatus");
+const dot = document.getElementById("firebaseDot");
+function firebaseStatus(text, icon){ if(status) status.textContent=text; if(dot) dot.textContent=icon; }
+
 try {
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
   window.cofreFirebase = app;
-  const status = document.getElementById("firebaseStatus");
-  const dot = document.getElementById("firebaseDot");
-  if (status) status.textContent = "🟢 Firebase configurado — Cofre-Seguro";
-  if (dot) dot.textContent = "🟢";
-  console.log("Firebase inicializado:", app.options.projectId);
+  window.cofreFirebaseAuth = auth;
+  window.cofreFirebaseDb = db;
+  firebaseStatus("🟡 Entrando no Cofre-Seguro...", "🟡");
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user) return;
+    window.cofreFirebaseUser = user;
+    firebaseStatus("🟢 Conta anônima conectada — backup pronto", "🟢");
+    console.log("Firebase UID:", user.uid);
+    await uploadEncryptedVault();
+  });
+
+  signInAnonymously(auth).catch((error)=>{
+    firebaseStatus("🔴 Falha no acesso anônimo — verifique o Authentication", "🔴");
+    console.error("Firebase Auth:", error);
+  });
+
+  window.addEventListener("cofre:vault-saved", uploadEncryptedVault);
+
+  async function uploadEncryptedVault(){
+    try {
+      if(!window.cofreFirebaseUser) return;
+      const raw = localStorage.getItem("cofreSeguroVaultV1");
+      if(!raw) return;
+      const rec = JSON.parse(raw);
+      await setDoc(doc(db, "users", window.cofreFirebaseUser.uid, "vault", "main"), {
+        v: rec.v || 1,
+        salt: rec.salt,
+        iv: rec.iv,
+        data: rec.data,
+        updatedAt: serverTimestamp()
+      });
+      firebaseStatus("🟢 Backup criptografado sincronizado", "🟢");
+    } catch(error) {
+      firebaseStatus("🟡 Firebase conectado — backup aguardando regras", "🟡");
+      console.error("Firestore:", error);
+    }
+  }
 } catch (error) {
-  const status = document.getElementById("firebaseStatus");
-  const dot = document.getElementById("firebaseDot");
-  if (status) status.textContent = "🔴 Erro na configuração do Firebase";
-  if (dot) dot.textContent = "🔴";
+  firebaseStatus("🔴 Erro na configuração do Firebase", "🔴");
   console.error("Firebase:", error);
 }
 </script>
