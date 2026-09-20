@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1456a0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cofre Seguro">
+<title>Cofre Seguro</title>
+<style>
+:root{--accent:#1456a0;--accent2:#1d6fca;--bg:#f4f7f5;--card:#fff;--text:#173126;--muted:#718078;--line:#dfe7e2;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+header{background:var(--accent);color:#fff;padding:22px 18px 18px;border-radius:0 0 22px 22px;position:relative}h1{margin:0;font-size:25px;padding-right:46px}.sub{opacity:.85;font-size:13px;margin-top:4px}.exit-btn{position:absolute;right:14px;top:16px;width:36px;height:36px;border:0;border-radius:50%;background:#fff;color:var(--accent);font-size:24px;font-weight:700;line-height:36px;text-align:center;padding:0;box-shadow:0 2px 8px #0003}
+.lock{background:#0d315a;border:1px solid #3f78b0;border-radius:15px;padding:13px;margin-top:16px;display:flex;align-items:center;gap:10px}.lock small{display:block;opacity:.75}
+main{padding:16px;max-width:680px;margin:auto}.tabs{display:grid;grid-template-columns:1fr 1fr;background:#e3ebe6;border-radius:14px;padding:4px;gap:4px;margin-bottom:16px}
+.tab{border:0;background:transparent;padding:12px;border-radius:11px;font-weight:700;color:var(--accent);font-size:14px}.tab.active{background:#fff;box-shadow:0 2px 8px #00000012}
+.toolbar{display:flex;gap:8px;margin-bottom:12px}.search{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}.add{border:0;background:var(--accent);color:#fff;border-radius:12px;padding:0 15px;font-size:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #00000007}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.title{font-weight:800}.type,.bank-name{font-size:12px;color:var(--muted);margin-top:3px}
+.actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}.act{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;color:var(--accent);font-size:13px}.danger{color:var(--danger)}
+.empty{text-align:center;color:var(--muted);padding:35px 15px}.notice{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;font-size:12px;margin-bottom:14px;color:var(--text)}
+.bank-line{display:flex;align-items:center;gap:10px}.bank-badge{width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#eef3f8;border:1px solid var(--line);font-weight:900;font-size:12px;color:var(--accent);flex:none}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:5;padding:18px;align-items:flex-end}.modal.show{display:flex}.sheet{background:#fff;border-radius:22px 22px 10px 10px;width:100%;max-width:680px;margin:auto;padding:20px;max-height:90vh;overflow:auto}
+.close{float:right;border:0;background:#eef2ef;border-radius:50%;width:34px;height:34px}label{display:block;font-size:12px;font-weight:700;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;font:inherit}textarea{min-height:75px}.primary{width:100%;border:0;background:var(--accent);color:#fff;padding:13px;border-radius:12px;margin-top:15px;font-weight:700}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
+
+.bank-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:8px 0 14px}
+.bank-choice{border:1px solid var(--line);background:#fff;border-radius:11px;padding:7px 3px 6px;text-align:center;color:var(--text);font-size:10px;font-weight:700}
+.bank-choice.selected{border:2px solid var(--accent);background:#eef6ff}
+.bank-logo{width:34px;height:34px;border-radius:9px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:900}
+.b-cx{background:#1769aa}.b-nu{background:#6f22c9}.b-pp{background:#16a765}.b-it{background:#f58220}.b-br{background:#c91f2b}
+.b-sa{background:#d71920}.b-bb{background:#f0cf00;color:#173126}.b-mp{background:#55aee8}.b-in{background:#ff7a18}.b-c6{background:#171717}
+.b-btg{background:#1764a0}.b-sic{background:#21a33a}.b-sco{background:#075e70}.b-ban{background:#1764b2}.b-out{background:#cfd6dc;color:#263238}
+@media(max-width:430px){.bank-grid{grid-template-columns:repeat(5,1fr)}.bank-choice{font-size:9px}.bank-logo{width:31px;height:31px}}
+
+
+
+/* Bloqueio por biometria */
+body.biometric-locked #list, body.biometric-locked .toolbar, body.biometric-locked .tabs, body.biometric-locked main > .card, body.biometric-locked main > .notice { filter: blur(5px); pointer-events:none; user-select:none; }
+body.biometric-locked #lockBtn { opacity:1; }
+</style>
+</head>
+<body>
+<header>
+<button class="exit-btn" id="exitBtn" aria-label="Sair e bloquear">×</button>
+<h1>🔐 Cofre Seguro</h1><div class="sub">Senhas • Chaves Pix • Dados protegidos</div>
+<div class="lock" id="lockBtn">🔓 <div><b id="lockTitle">Cofre aberto</b><small id="lockSub">Toque para bloquear</small></div></div>
+</header>
+<main>
+<div class="tabs"><button class="tab active" id="tabSenhas">🔐 Senhas</button><button class="tab" id="tabPix">💠 Chaves Pix</button></div>
+<div class="toolbar"><input class="search" id="search" placeholder="🔎 Pesquisar senha, Hotmail, banco..."><button class="add" id="add">＋</button></div>
+<div style="display:flex;gap:8px;margin-bottom:12px"><button class="act" style="flex:1" id="shareApp">📤 Compartilhar aplicativo</button><button class="act" style="flex:1" id="faceUnlock">🔐 Face ID / biometria</button></div>
+<div class="card"><div class="row"><div><div class="title">🎨 Cor do aplicativo</div><div class="type">Verde não faz parte das opções.</div></div><select id="themePicker" style="width:auto;min-width:120px"><option value="blue">Azul</option><option value="yellow">Amarelo</option><option value="red">Vermelho</option><option value="white">Branco</option><option value="black">Preto</option></select></div></div>
+<div class="notice" id="firebaseStatus">☁️ Firebase: conectando...</div>
+<div class="notice">🔐 Face ID / biometria: ative no botão acima para proteger o acesso ao cofre neste aparelho. Não há senha mestra nesta versão.</div>
+<section id="list"></section>
+</main>
+<footer>© 2026 Luis Ricardo — Todos os direitos reservados</footer>
+
+<div class="modal" id="modal"><div class="sheet"><button class="close" id="close">×</button><h2 id="modalTitle">Novo cadastro</h2><div id="form"></div></div></div>
+
+<script>
+(async function(){
+  try{
+    const {initializeApp}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js");
+    const {getAuth,signInAnonymously}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js");
+    const {getFirestore}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js");
+    const firebaseConfig={apiKey:"AIzaSyChZp2bseKghuo97i6A_XFe1StEcBhcDkE",authDomain:"cofre-seguro-2642d.firebaseapp.com",projectId:"cofre-seguro-2642d",storageBucket:"cofre-seguro-2642d.firebasestorage.app",messagingSenderId:"1076024528728",appId:"1:1076024528728:web:082349d5c9877857a31f2d"};
+    const app=initializeApp(firebaseConfig);
+    const auth=getAuth(app);
+    getFirestore(app);
+    const el=document.getElementById("firebaseStatus");
+    if(el)el.textContent="☁️ Firebase inicializado • testando autenticação...";
+    try{
+      await signInAnonymously(auth);
+      if(el)el.textContent="☁️ Firebase conectado";
+    }catch(authError){
+      console.error("Firebase Auth:",authError);
+      if(el){
+        var code=authError&&authError.code?authError.code:"";
+        if(code==="auth/operation-not-allowed") el.textContent="☁️ Firebase inicializado • login anônimo desativado";
+        else if(code==="auth/api-key-not-valid") el.textContent="☁️ Firebase • chave da API inválida";
+        else el.textContent="☁️ Firebase • erro: "+(code||"desconhecido");
+      }
+    }
+  }catch(e){
+    console.error("Firebase:",e);
+    const el=document.getElementById("firebaseStatus");
+    if(el)el.textContent="☁️ Firebase: aguardando configuração";
+  }
+})();
+</script>
+<script>
+(function(){
+"use strict";
+var mode="senhas";
+var STORAGE_KEY="cofreSeguroDadosV2";
+var data=[];
+var BANKS=[["Caixa","CX"],["Nubank","NU"],["PicPay","PP"],["Itaú","IT"],["Bradesco","BR"],["Santander","SA"],["Banco do Brasil","BB"],["Mercado Pago","MP"],["Inter","IN"],["BTG Pactual","BTG"],["C6 Bank","C6"],["Sicredi","SIC"],["Sicoob","SIC"],["Banrisul","BAN"],["Outro","🏦"]];
+var themes={blue:["#1456a0","#1d6fca"],yellow:["#a86b00","#d89400"],red:["#9d1c2e","#c92b42"],white:["#374151","#4b5563"],black:["#111827","#1f2937"]};
+function $(id){return document.getElementById(id)}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function bank(name){for(var i=0;i<BANKS.length;i++)if(BANKS[i][0]===name)return BANKS[i];return ["Outro","🏦"]}
+function loadData(){try{var raw=localStorage.getItem(STORAGE_KEY);if(raw){var parsed=JSON.parse(raw);if(Array.isArray(parsed))data=parsed;}}catch(e){console.error(e)}if(!data.length){data=[{id:1,kind:"senhas",nome:"Exemplo — Banco",usuario:"meu.usuario",senha:"senha-exemplo",obs:"Exemplo da interface — substitua ou exclua."},{id:2,kind:"pix",nome:"Minha chave principal",tipo:"Celular",chave:"(11) 99999-9999",banco:"Nubank",obs:"Exemplo da interface."}];saveData()}}
+function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}catch(e){console.error(e);alert("Não foi possível salvar os dados neste aparelho.")}}
+function setOpen(){
+  $("lockBtn").innerHTML="🔓 <div><b>Cofre aberto</b><small>Versão de teste sem senha</small></div>";
+}
+function render(){
+ var q=$("search").value.toLowerCase(),out="";
+ for(var i=0;i<data.length;i++){
+  var x=data[i];if(x.kind!==mode)continue;if(q&&JSON.stringify(x).toLowerCase().indexOf(q)<0)continue;
+  if(mode==="senhas"){
+   out+='<article class="card"><div class="row"><div><div class="title">🔐 '+esc(x.nome)+'</div><div class="type">'+esc(x.usuario||"Sem usuário")+'</div></div><span>🔒</span></div>';
+   out+='<div class="actions"><button class="act" data-action="show" data-id="'+x.id+'">🔒 Mostrar senha</button><button class="act" data-action="copy" data-value="'+esc(x.senha)+'">📋 Copiar senha</button><button class="act" data-action="copy" data-value="'+esc(x.usuario)+'">📋 Copiar usuário</button><button class="act" data-action="share" data-value="'+esc(x.nome+" — "+x.usuario)+'">📤 Compartilhar</button><button class="act" data-action="edit" data-id="'+x.id+'">✏️ Editar</button><button class="act danger" data-action="delete" data-id="'+x.id+'">🗑️ Excluir</button></div></article>';
+  }else{
+   var bk=bank(x.banco);out+='<article class="card"><div class="row"><div class="bank-line"><span class="bank-badge">'+esc(bk[1])+'</span><div><div class="title">💠 '+esc(x.nome)+'</div><div class="bank-name">'+esc(x.banco||"Outro")+' · '+esc(x.tipo||"")+'</div></div></div><span>🔒</span></div>';
+   out+='<div style="margin-top:10px;font-weight:700">'+esc(x.chave||"")+'</div><div class="type" style="margin-top:8px">';
+   if(x.titular)out+='👤 Titular: '+esc(x.titular)+'<br>';if(x.agencia)out+='🏦 Agência: '+esc(x.agencia)+'<br>';if(x.conta)out+='💳 Conta: '+esc(x.conta);
+   out+='</div><div class="actions"><button class="act" data-action="copy" data-value="'+esc(x.chave)+'">📋 Copiar chave</button><button class="act" data-action="share" data-value="'+esc(x.chave)+'">📤 Compartilhar</button><button class="act" data-action="edit" data-id="'+x.id+'">✏️ Editar</button><button class="act danger" data-action="delete" data-id="'+x.id+'">🗑️ Excluir</button></div></article>';
+  }
+ }
+ $("list").innerHTML=out||'<div class="empty">Nenhum cadastro nesta aba.<br>Toque em ＋ para adicionar.</div>';
+}
+function openForm(item){
+ $("modalTitle").textContent=item?"Editar cadastro":(mode==="senhas"?"Nova senha":"Nova chave Pix");var f="";
+ if(mode==="senhas"){
+  f='<label>Nome do cadastro</label><input id="nome" value="'+esc(item?item.nome:"")+'"><label>Usuário / login</label><input id="usuario" value="'+esc(item?item.usuario:"")+'"><label>Senha</label><input id="senha" type="password" value="'+esc(item?item.senha:"")+'"><label>Observações</label><textarea id="obs">'+esc(item?item.obs:"")+'</textarea>';
+ }else{
+  f='<label>Nome da chave</label><input id="nome" value="'+esc(item?item.nome:"")+'"><label>Tipo da chave</label><select id="tipo"><option>CPF</option><option>Celular</option><option>E-mail</option><option>Aleatória</option></select><label>Chave Pix</label><input id="chave" value="'+esc(item?item.chave:"")+'"><label>Banco / instituição <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><select id="banco"><option value="">Selecione o banco</option>';
+  for(var i=0;i<BANKS.length;i++)f+='<option value="'+esc(BANKS[i][0])+'">'+esc(BANKS[i][0])+'</option>';
+  f+='</select><input id="bancoOutro" placeholder="Digite o nome do banco/instituição" value="'+esc(item&&item.bancoOutro?item.bancoOutro:"")+'" style="display:none;margin-top:8px"><label>Nome do titular <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input id="titular" value="'+esc(item?item.titular:"")+'"><label>Agência <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input id="agencia" inputmode="numeric" value="'+esc(item?item.agencia:"")+'"><label>Número da conta <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><input id="conta" inputmode="numeric" value="'+esc(item?item.conta:"")+'"><label>Observações</label><textarea id="obs">'+esc(item?item.obs:"")+'</textarea>';
+ }
+ f+='<button class="primary" id="saveBtn">💾 Salvar no cofre</button>';
+ $("form").innerHTML=f;if(item&&mode==="pix"){$("tipo").value=item.tipo||"CPF";$("banco").value=item.banco||""}
+ $("saveBtn").onclick=function(){save(item?item.id:0)};
+ if($("banco")){
+   function toggleBancoOutro(){ $("bancoOutro").style.display=$("banco").value==="Outro"?"block":"none"; }
+   $("banco").onchange=toggleBancoOutro;
+   toggleBancoOutro();
+ }
+ $("modal").classList.add("show");
+}
+function save(id){
+ var o={id:id||Date.now(),kind:mode,nome:$("nome").value.trim(),obs:$("obs").value};if(!o.nome){alert("Informe um nome.");return}
+ if(mode==="senhas"){o.usuario=$("usuario").value;o.senha=$("senha").value}else{o.tipo=$("tipo").value;o.chave=$("chave").value;o.banco=$("banco").value;o.bancoOutro=$("bancoOutro")?$("bancoOutro").value.trim():"";o.titular=$("titular").value.trim();o.agencia=$("agencia").value.trim();o.conta=$("conta").value.trim()}
+ if(id){for(var i=0;i<data.length;i++)if(data[i].id===id)data[i]=o}else data.unshift(o);saveData();$("modal").classList.remove("show");render();
+}
+function copyText(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){alert("Copiado!")}).catch(function(){prompt("Copie o conteúdo:",t)})}else prompt("Copie o conteúdo:",t)}
+function shareText(t){if(navigator.share){navigator.share({text:t}).catch(function(){})}else copyText(t)}
+function showPassword(id){for(var i=0;i<data.length;i++)if(data[i].id===id){alert("Senha: "+data[i].senha);return}}
+$("tabSenhas").onclick=function(){mode="senhas";$("tabSenhas").classList.add("active");$("tabPix").classList.remove("active");$("search").value="";render()};
+$("tabPix").onclick=function(){mode="pix";$("tabPix").classList.add("active");$("tabSenhas").classList.remove("active");$("search").value="";render()};
+$("search").oninput=render;$("add").onclick=function(){openForm(null)};$("close").onclick=function(){$("modal").classList.remove("show")};
+$("list").onclick=function(e){var b=e.target.closest("button");if(!b)return;var a=b.getAttribute("data-action"),id=Number(b.getAttribute("data-id"));if(a==="copy")copyText(b.getAttribute("data-value")||"");if(a==="share")shareText(b.getAttribute("data-value")||"");if(a==="show")showPassword(id);if(a==="edit"){for(var i=0;i<data.length;i++)if(data[i].id===id){openForm(data[i]);break}}if(a==="delete"&&confirm("Deseja realmente excluir este cadastro?")){data=data.filter(function(x){return x.id!==id});saveData();render()}};
+$("shareApp").onclick=function(){if(navigator.share){navigator.share({title:"Cofre Seguro",text:"Cofre Seguro — aplicativo",url:location.href}).catch(function(){})}else copyText(location.href)};
+var BIO_KEY="cofreSeguroWebAuthnV1";
+var bioLocked=false;
+function b64url(buf){var a=new Uint8Array(buf),s="";for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"")}
+function bytesFromB64url(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a}
+function randomBytes(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return a}
+function hasBiometric(){return !!localStorage.getItem(BIO_KEY)}
+function setBiometricLocked(v){bioLocked=v;document.body.classList.toggle("biometric-locked",v);if(v){$("lockBtn").innerHTML="🔒 <div><b id=\"lockTitle\">Cofre bloqueado</b><small id=\"lockSub\">Toque para usar Face ID / biometria</small></div>"}else{$("lockBtn").innerHTML="🔓 <div><b id=\"lockTitle\">Cofre aberto</b><small id=\"lockSub\">Toque para bloquear</small></div>"}}
+async function registerBiometric(){
+ if(!window.PublicKeyCredential||!navigator.credentials){alert("Este navegador não disponibilizou Face ID/biometria para este site.");return false}
+ try{
+  var challenge=randomBytes(32), userId=randomBytes(16);
+  var cred=await navigator.credentials.create({publicKey:{challenge:challenge,rp:{name:"Cofre Seguro",id:location.hostname},user:{id:userId,name:"cofre@local",displayName:"Cofre Seguro"},pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",residentKey:"preferred",userVerification:"required"},timeout:60000,attestation:"none"}});
+  if(!cred) return false;
+  localStorage.setItem(BIO_KEY,b64url(cred.rawId));
+  alert("✅ Face ID / biometria ativado neste aparelho.");
+  setBiometricLocked(true);
+  return true;
+ }catch(e){console.error(e);alert("Não foi possível ativar a biometria neste aparelho. Verifique se o bloqueio de tela/biometria está configurado.");return false}
+}
+async function unlockWithBiometric(){
+ var saved=localStorage.getItem(BIO_KEY);if(!saved){return registerBiometric()}
+ try{
+  var challenge=randomBytes(32), id=bytesFromB64url(saved);
+  var cred=await navigator.credentials.get({publicKey:{challenge:challenge,allowCredentials:[{type:"public-key",id:id}],userVerification:"required",timeout:60000}});
+  if(cred){setBiometricLocked(false);return true}
+ }catch(e){console.error(e);return false}
+}
+$("faceUnlock").onclick=function(){if(!hasBiometric()){registerBiometric()}else{unlockWithBiometric()}};
+$("lockBtn").onclick=function(){if(bioLocked){unlockWithBiometric()}else{setBiometricLocked(true)}};
+$("exitBtn").onclick=function(){setBiometricLocked(true)};
+$("themePicker").onchange=function(){applyTheme(this.value)};
+function applyTheme(n){var t=themes[n]||themes.blue;document.documentElement.style.setProperty("--accent",t[0]);document.documentElement.style.setProperty("--accent2",t[1]);try{localStorage.setItem("cofre-theme",n)}catch(e){}}
+try{var saved=localStorage.getItem("cofre-theme")||"blue";$("themePicker").value=saved;applyTheme(saved)}catch(e){}
+loadData();setOpen();render();
+if(hasBiometric()){setBiometricLocked(true)}else{setBiometricLocked(false)}
+})();
+</script>
+
+
+</body>
+</html>
