@@ -12,14 +12,14 @@
 <style>
 :root{--accent:#1456a0;--accent2:#1d6fca;--bg:#f4f7f5;--card:#fff;--text:#173126;--muted:#718078;--line:#dfe7e2;--danger:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
-header{background:var(--accent);color:#fff;padding:22px 18px 18px;border-radius:0 0 22px 22px}h1{margin:0;font-size:25px}.sub{opacity:.85;font-size:13px;margin-top:4px}
+header{background:var(--accent);color:#fff;padding:22px 18px 18px;border-radius:0 0 22px 22px;position:relative}h1{margin:0;font-size:25px;padding-right:46px}.sub{opacity:.85;font-size:13px;margin-top:4px}.exit-btn{position:absolute;right:14px;top:16px;width:36px;height:36px;border:0;border-radius:50%;background:#fff;color:var(--accent);font-size:24px;font-weight:700;line-height:36px;text-align:center;padding:0;box-shadow:0 2px 8px #0003}
 .lock{background:#0d315a;border:1px solid #3f78b0;border-radius:15px;padding:13px;margin-top:16px;display:flex;align-items:center;gap:10px}.lock small{display:block;opacity:.75}
 main{padding:16px;max-width:680px;margin:auto}.tabs{display:grid;grid-template-columns:1fr 1fr;background:#e3ebe6;border-radius:14px;padding:4px;gap:4px;margin-bottom:16px}
 .tab{border:0;background:transparent;padding:12px;border-radius:11px;font-weight:700;color:var(--accent);font-size:14px}.tab.active{background:#fff;box-shadow:0 2px 8px #00000012}
 .toolbar{display:flex;gap:8px;margin-bottom:12px}.search{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}.add{border:0;background:var(--accent);color:#fff;border-radius:12px;padding:0 15px;font-size:22px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #00000007}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.title{font-weight:800}.type,.bank-name{font-size:12px;color:var(--muted);margin-top:3px}
 .actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}.act{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;color:var(--accent);font-size:13px}.danger{color:var(--danger)}
-.empty{text-align:center;color:var(--muted);padding:35px 15px}.notice{background:#fff7df;border:1px solid #f0d58a;border-radius:12px;padding:11px;font-size:12px;margin-bottom:14px}
+.empty{text-align:center;color:var(--muted);padding:35px 15px}.notice{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;font-size:12px;margin-bottom:14px;color:var(--text)}
 .bank-line{display:flex;align-items:center;gap:10px}.bank-badge{width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#eef3f8;border:1px solid var(--line);font-weight:900;font-size:12px;color:var(--accent);flex:none}
 .modal{display:none;position:fixed;inset:0;background:#0008;z-index:5;padding:18px;align-items:flex-end}.modal.show{display:flex}.sheet{background:#fff;border-radius:22px 22px 10px 10px;width:100%;max-width:680px;margin:auto;padding:20px;max-height:90vh;overflow:auto}
 .close{float:right;border:0;background:#eef2ef;border-radius:50%;width:34px;height:34px}label{display:block;font-size:12px;font-weight:700;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;font:inherit}textarea{min-height:75px}.primary{width:100%;border:0;background:var(--accent);color:#fff;padding:13px;border-radius:12px;margin-top:15px;font-weight:700}
@@ -40,6 +40,7 @@ footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
 </head>
 <body>
 <header>
+<button class="exit-btn" id="exitBtn" aria-label="Sair e bloquear">×</button>
 <h1>🔐 Cofre Seguro</h1><div class="sub">Senhas • Chaves Pix • Dados protegidos</div>
 <div class="lock" id="lockBtn">🔒 <div><b>Cofre protegido</b><small>Toque para bloquear</small></div></div>
 </header>
@@ -48,7 +49,7 @@ footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
 <div class="toolbar"><input class="search" id="search" placeholder="🔎 Pesquisar senha, Hotmail, banco..."><button class="add" id="add">＋</button></div>
 <div style="display:flex;gap:8px;margin-bottom:12px"><button class="act" style="flex:1" id="shareApp">📤 Compartilhar aplicativo</button><button class="act" style="flex:1" id="faceUnlock">🔐 Face ID / biometria</button></div>
 <div class="card"><div class="row"><div><div class="title">🎨 Cor do aplicativo</div><div class="type">Verde não faz parte das opções.</div></div><select id="themePicker" style="width:auto;min-width:120px"><option value="blue">Azul</option><option value="yellow">Amarelo</option><option value="red">Vermelho</option><option value="white">Branco</option><option value="black">Preto</option></select></div></div>
-<div class="notice">🔒 Cofre protegido neste aparelho: os dados são criptografados antes de serem armazenados. Nesta versão de teste não há senha mestra; a chave fica vinculada ao armazenamento deste aparelho.</div>
+<div class="notice">🔒 Cofre local protegido: os dados salvos neste aparelho são criptografados antes de serem armazenados. O backup no Firebase será ativado depois.</div>
 <div class="card" id="firebaseStatusCard"><div class="row"><div><div class="title">☁️ Firebase</div><div class="type" id="firebaseStatus">🟡 Conectando ao projeto Cofre-Seguro...</div></div><span id="firebaseDot">🟡</span></div></div>
 <section id="list"></section>
 </main>
@@ -57,7 +58,7 @@ footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
 <div class="auth-modal" id="authModal"><div class="auth-box">
 <h2 id="authTitle">🔐 Criar senha mestra</h2>
 <p id="authText">Esta senha será usada para proteger e criptografar os dados do cofre neste aparelho. Ela não será salva no Firebase. <b>Não a perca.</b></p>
-<label id="authLabel1">Senha de acesso</label><input id="master1" type="password" autocomplete="new-password" placeholder="Crie uma senha forte">
+<label id="authLabel1">Senha mestra</label><input id="master1" type="password" autocomplete="new-password" placeholder="Crie uma senha forte">
 <div id="confirmWrap"><label>Confirmar senha</label><input id="master2" type="password" autocomplete="new-password" placeholder="Digite novamente"></div>
 <div class="auth-error" id="authError"></div>
 <button class="primary" id="authBtn">🔐 Criar e abrir o cofre</button>
@@ -85,7 +86,6 @@ white:["#374151","#4b5563"],black:["#111827","#1f2937"]
 var cryptoKey=null;
 var locked=true;
 var STORAGE_KEY="cofreSeguroVaultV1";
-var DEVICE_KEY_STORAGE="cofreSeguroDeviceKeyV1";
 var MIN_PASSWORD=8;
 function $(id){return document.getElementById(id)}
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -139,8 +139,9 @@ if(a==="copy")copyText(b.getAttribute("data-value")||"");if(a==="share")shareTex
 if(a==="edit"){for(var i=0;i<data.length;i++)if(data[i].id===id){openForm(data[i]);break}}
 if(a==="delete"&&confirm("Deseja realmente excluir este cadastro?")){data=data.filter(function(x){return x.id!==id});render();persistVault()}}
 $("shareApp").onclick=function(){if(navigator.share){navigator.share({title:"Cofre Seguro",text:"Cofre Seguro — aplicativo",url:location.href}).catch(function(){})}else copyText(location.href)};
-$("faceUnlock").onclick=function(){if(locked){unlockDeviceVault().catch(function(){alert("Não foi possível abrir o cofre neste aparelho.")});return}if(window.PublicKeyCredential){PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function(ok){alert(ok?"Biometria/Face ID disponível neste dispositivo. A ligação ao desbloqueio real será feita na próxima etapa.":"Biometria não disponível neste ambiente.")}).catch(function(){alert("Não foi possível verificar a biometria.")})}else alert("Biometria/WebAuthn não está disponível neste navegador.")};
-$("lockBtn").onclick=function(){if(locked){unlockDeviceVault().catch(function(e){console.error(e);alert("Não foi possível abrir o cofre neste aparelho.")});}else{cryptoKey=null;setLocked(true);alert("Cofre bloqueado.")}};
+$("faceUnlock").onclick=function(){if(locked){alert("Primeiro desbloqueie o cofre com a senha mestra. Depois vamos ligar a biometria/Face ID a esse desbloqueio.");return}if(window.PublicKeyCredential){PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function(ok){alert(ok?"Biometria/Face ID disponível neste dispositivo. A ligação ao desbloqueio real será feita na próxima etapa.":"Biometria não disponível neste ambiente.")}).catch(function(){alert("Não foi possível verificar a biometria.")})}else alert("Biometria/WebAuthn não está disponível neste navegador.")};
+$("lockBtn").onclick=function(){if(locked)openAuth(false);else{cryptoKey=null;setLocked(true);alert("Cofre bloqueado.")}};
+$("exitBtn").onclick=function(){if(!locked){cryptoKey=null;setLocked(true);}else{openAuth(false)}};
 $("themePicker").onchange=function(){applyTheme(this.value)};
 function applyTheme(n){var t=themes[n]||themes.blue;document.documentElement.style.setProperty("--accent",t[0]);document.documentElement.style.setProperty("--accent2",t[1]);try{localStorage.setItem("cofre-theme",n)}catch(e){}}
 try{var saved=localStorage.getItem("cofre-theme")||"blue";$("themePicker").value=saved;applyTheme(saved)}catch(e){}
@@ -148,16 +149,13 @@ try{var saved=localStorage.getItem("cofre-theme")||"blue";$("themePicker").value
 async function deriveKey(password,salt){var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:200000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
 async function encryptVault(){var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);var rec={v:1,salt:localStorage.getItem(STORAGE_KEY)?JSON.parse(localStorage.getItem(STORAGE_KEY)).salt:null,iv:b64(iv),data:b64(new Uint8Array(cipher))};localStorage.setItem(STORAGE_KEY,JSON.stringify(rec))}
 async function persistVault(){if(!cryptoKey)return;try{var old=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");var salt=old&&old.salt?bytes(old.salt):null;if(!salt){salt=crypto.getRandomValues(new Uint8Array(16));var oldKey=cryptoKey;/* key already derived from the salt used during setup */}var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);var rec={v:1,salt:b64(salt),iv:b64(iv),data:b64(new Uint8Array(cipher)),updatedAt:Date.now()};localStorage.setItem(STORAGE_KEY,JSON.stringify(rec));if(window.cofreFirebaseSave)window.cofreFirebaseSave(rec);}catch(e){console.error(e);alert("Não foi possível salvar o cofre neste aparelho.")}}
-async function importDeviceKey(raw){return crypto.subtle.importKey("raw",raw,{name:"AES-GCM"},false,["encrypt","decrypt"])}
-async function createVaultWithoutMaster(){var raw=crypto.getRandomValues(new Uint8Array(32));cryptoKey=await importDeviceKey(raw);localStorage.setItem(DEVICE_KEY_STORAGE,b64(raw));var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);var rec={v:2,mode:"device",iv:b64(iv),data:b64(new Uint8Array(cipher)),updatedAt:Date.now()};localStorage.setItem(STORAGE_KEY,JSON.stringify(rec));if(window.cofreFirebaseSave)window.cofreFirebaseSave(rec);setLocked(false);$("authModal").classList.remove("show");render();}
-async function unlockDeviceVault(){var raw=localStorage.getItem(DEVICE_KEY_STORAGE),recRaw=localStorage.getItem(STORAGE_KEY);if(!raw||!recRaw)throw new Error("Cofre sem chave do aparelho");var rec=JSON.parse(recRaw);if(rec.mode!=="device")throw new Error("Este cofre usa senha mestra");var key=await importDeviceKey(bytes(raw));var plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:bytes(rec.iv)},key,bytes(rec.data));var loaded=JSON.parse(new TextDecoder().decode(plain));if(!Array.isArray(loaded))throw new Error("Dados inválidos");cryptoKey=key;data=loaded;setLocked(false);$("authModal").classList.remove("show");render();}
 async function createVault(password){var salt=crypto.getRandomValues(new Uint8Array(16));cryptoKey=await deriveKey(password,salt);var iv=crypto.getRandomValues(new Uint8Array(12));var plain=new TextEncoder().encode(JSON.stringify(data));var cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},cryptoKey,plain);var rec={v:1,salt:b64(salt),iv:b64(iv),data:b64(new Uint8Array(cipher)),updatedAt:Date.now()};localStorage.setItem(STORAGE_KEY,JSON.stringify(rec));if(window.cofreFirebaseSave)window.cofreFirebaseSave(rec);setLocked(false);$("authModal").classList.remove("show");render();}
-async function unlockVault(password){var rec=JSON.parse(localStorage.getItem(STORAGE_KEY));var salt=bytes(rec.salt);var key=await deriveKey(password,salt);var plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:bytes(rec.iv)},key,bytes(rec.data));var loaded=JSON.parse(new TextDecoder().decode(plain));if(!Array.isArray(loaded))throw new Error("Dados inválidos");data=loaded;var raw=crypto.getRandomValues(new Uint8Array(32));cryptoKey=await importDeviceKey(raw);localStorage.setItem(DEVICE_KEY_STORAGE,b64(raw));var iv2=crypto.getRandomValues(new Uint8Array(12));var plain2=new TextEncoder().encode(JSON.stringify(data));var cipher2=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv2},cryptoKey,plain2);var rec2={v:2,mode:"device",iv:b64(iv2),data:b64(new Uint8Array(cipher2)),updatedAt:Date.now()};localStorage.setItem(STORAGE_KEY,JSON.stringify(rec2));if(window.cofreFirebaseSave)window.cofreFirebaseSave(rec2);setLocked(false);$("authModal").classList.remove("show");$("authError").textContent="";render();}
+async function unlockVault(password){var rec=JSON.parse(localStorage.getItem(STORAGE_KEY));var salt=bytes(rec.salt);var key=await deriveKey(password,salt);var plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:bytes(rec.iv)},key,bytes(rec.data));var loaded=JSON.parse(new TextDecoder().decode(plain));if(!Array.isArray(loaded))throw new Error("Dados inválidos");cryptoKey=key;data=loaded;setLocked(false);$("authModal").classList.remove("show");$("authError").textContent="";render();}
 window.cofreOpenUnlock=function(){openAuth(false)};
-function openAuth(setup){var has=!!localStorage.getItem(STORAGE_KEY);var rec=has?JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"):null;if(!has){createVaultWithoutMaster().catch(function(e){console.error(e);alert("Não foi possível criar o cofre neste aparelho.")});return}if(rec&&rec.mode==="device"){unlockDeviceVault().catch(function(e){console.error(e);alert("Não foi possível abrir o cofre neste aparelho.")});return}$("authModal").classList.add("show");$("authTitle").textContent="🔐 Desbloquear Cofre";$("authText").textContent="Este cofre antigo usa uma senha mestra.";$("confirmWrap").style.display="none";$("authBtn").textContent="🔓 Desbloquear cofre";$("master1").value="";$("master2").value="";$("authError").textContent="";setTimeout(function(){$("master1").focus()},100)}
-$("authBtn").onclick=async function(){var p=$("master1").value;if(p.length<MIN_PASSWORD){$("authError").textContent="Use pelo menos "+MIN_PASSWORD+" caracteres.";return}try{await unlockVault(p)}catch(e){cryptoKey=null;$("authError").textContent="Senha incorreta ou cofre inválido."}};
+function openAuth(setup){var has=!!localStorage.getItem(STORAGE_KEY);$("authModal").classList.add("show");$("authTitle").textContent=has?"🔐 Desbloquear Cofre":"🔐 Criar senha mestra";$("authText").textContent=has?"Digite sua senha mestra para abrir o cofre. Ela não é enviada ao Firebase.":"Esta senha será usada para proteger e criptografar os dados do cofre neste aparelho. Ela não será salva no Firebase. Não a perca.";$("confirmWrap").style.display=has?"none":"block";$("authBtn").textContent=has?"🔓 Desbloquear cofre":"🔐 Criar e abrir o cofre";$("master1").value="";$("master2").value="";$("authError").textContent="";setTimeout(function(){$("master1").focus()},100)}
+$("authBtn").onclick=async function(){var p=$("master1").value;if(p.length<MIN_PASSWORD){$("authError").textContent="Use pelo menos "+MIN_PASSWORD+" caracteres.";return}try{if(localStorage.getItem(STORAGE_KEY)){await unlockVault(p)}else{if(p!==$("master2").value){$("authError").textContent="As senhas não coincidem.";return}await createVault(p)}}catch(e){cryptoKey=null;$("authError").textContent="Senha incorreta ou cofre inválido."}};
 $("authCancel").onclick=function(){$("authModal").classList.remove("show")};
-setLocked(true);render();if(localStorage.getItem(STORAGE_KEY)){var bootRec=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if(bootRec&&bootRec.mode==="device"){unlockDeviceVault().catch(function(e){console.error(e)})}else{openAuth(false)}}else{createVaultWithoutMaster().catch(function(e){console.error(e);alert("Não foi possível criar o cofre neste aparelho.")});}
+setLocked(true);render();openAuth(false);
 })();
 </script>
 
@@ -208,7 +206,7 @@ try {
             data: remote.data,
             updatedAt: remote.updatedAt || null
           }));
-          showStatus("Backup criptografado recuperado", "🟢");
+          showStatus("Backup criptografado recuperado — desbloqueie com sua senha mestra", "🟢");
           if (window.cofreOpenUnlock) window.cofreOpenUnlock();
         }
       } else if (localRaw) {
@@ -232,7 +230,7 @@ try {
       }
     } catch (e) {
       console.error("Firestore:", e);
-      showStatus("Falha no backup: "+(e.code||"erro")+" — "+(e.message||""), "🔴");
+      showStatus("Falha no acesso ao backup — verifique as Rules", "🔴");
     }
   });
 
@@ -256,12 +254,12 @@ try {
 
   signInAnonymously(auth).catch((error) => {
     console.error("Authentication:", error);
-    showStatus("Falha no acesso anônimo: "+(error.code||"erro")+" — "+(error.message||""), "🔴");
+    showStatus("Falha no acesso anônimo — verifique o Authentication", "🔴");
   });
 } catch (error) {
   showStatus("Erro na configuração do Firebase", "🔴");
   console.error("Firebase:", error);
 }
 </script>
-</body></body>
+</body>
 </html>
