@@ -66,7 +66,7 @@ body.biometric-locked #lockBtn { opacity:1; }
     const {initializeApp}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js");
     const {getAuth,signInAnonymously}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js");
     const {getFirestore}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js");
-    const firebaseConfig={apiKey:"AIzaSyChZp2bseKghuo97i6A_XFe1StEcBhcDkE",authDomain:"cofre-seguro-2642d.firebaseapp.com",projectId:"cofre-seguro-2642d",storageBucket:"cofre-seguro-2642d.firebasestorage.app",messagingSenderId:"11076024528728",appId:"1:1076024528728:web:082349d5c9877857a31f2d"};
+    const firebaseConfig={apiKey:"AIzaSyChZp2bseKghuo97i6A_XFe1StEcBhcDkE",authDomain:"cofre-seguro-2642d.firebaseapp.com",projectId:"cofre-seguro-2642d",storageBucket:"cofre-seguro-2642d.firebasestorage.app",messagingSenderId:"1076024528728",appId:"1:1076024528728:web:082349d5c9877857a31f2d"};
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     getFirestore(app);
@@ -77,7 +77,12 @@ body.biometric-locked #lockBtn { opacity:1; }
       if(el)el.textContent="☁️ Firebase conectado";
     }catch(authError){
       console.error("Firebase Auth:",authError);
-      if(el)el.textContent="☁️ Firebase inicializado • autenticação precisa ser ativada";
+      if(el){
+        var code=authError&&authError.code?authError.code:"";
+        if(code==="auth/operation-not-allowed") el.textContent="☁️ Firebase inicializado • login anônimo desativado";
+        else if(code==="auth/api-key-not-valid") el.textContent="☁️ Firebase • chave da API inválida";
+        else el.textContent="☁️ Firebase • erro de autenticação";
+      }
     }
   }catch(e){
     console.error("Firebase:",e);
