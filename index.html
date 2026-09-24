@@ -9,9 +9,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cofre Seguro">
 <title>Cofre Seguro</title>
-<meta name="app-version" content="2026.09.20.1">
+<meta name="app-version" content="2026.09.24.1">
 <style>
-:root{--accent:#1456a0;--accent2:#1d6fca;--bg:#f4f7f5;--card:#fff;--text:#173126;--muted:#718078;--line:#dfe7e2;--danger:#b42318}
+:root{--accent:#1456a0;--accent2:#1d6fca;--bg:#f4f7f5;--card:#fff;--text:#173126;--muted:#718078;--line:#dfe7e2;--danger:#b42318;--ok:#157347}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
 header{background:var(--accent);color:#fff;padding:22px 18px 18px;border-radius:0 0 22px 22px;position:relative}h1{margin:0;font-size:25px;padding-right:46px}.sub{opacity:.85;font-size:13px;margin-top:4px}.exit-btn{position:absolute;right:14px;top:16px;width:36px;height:36px;border:0;border-radius:50%;background:#fff;color:var(--accent);font-size:24px;font-weight:700;line-height:36px;text-align:center;padding:0;box-shadow:0 2px 8px #0003}
 .lock{background:#0d315a;border:1px solid #3f78b0;border-radius:15px;padding:13px;margin-top:16px;display:flex;align-items:center;gap:10px}.lock small{display:block;opacity:.75}
@@ -23,26 +23,69 @@ main{padding:16px;max-width:680px;margin:auto}.tabs{display:grid;grid-template-c
 .empty{text-align:center;color:var(--muted);padding:35px 15px}.notice{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;font-size:12px;margin-bottom:14px;color:var(--text)}
 .bank-line{display:flex;align-items:center;gap:10px}.bank-badge{width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#eef3f8;border:1px solid var(--line);font-weight:900;font-size:12px;color:var(--accent);flex:none}
 .modal{display:none;position:fixed;inset:0;background:#0008;z-index:5;padding:18px;align-items:flex-end}.modal.show{display:flex}.sheet{background:#fff;border-radius:22px 22px 10px 10px;width:100%;max-width:680px;margin:auto;padding:20px;max-height:90vh;overflow:auto}
-.close{float:right;border:0;background:#eef2ef;border-radius:50%;width:34px;height:34px}label{display:block;font-size:12px;font-weight:700;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;font:inherit}textarea{min-height:75px}.pass-wrap{position:relative}.pass-wrap input{padding-right:48px;-webkit-text-security:disc}.pass-wrap input.show-pass{-webkit-text-security:none}.eye-btn{position:absolute;right:6px;top:5px;width:40px;height:40px;border:0;background:transparent;border-radius:9px;font-size:20px;cursor:pointer}.primary{width:100%;border:0;background:var(--accent);color:#fff;padding:13px;border-radius:12px;margin-top:15px;font-weight:700}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
+.close{float:right;border:0;background:#eef2ef;border-radius:50%;width:34px;height:34px}label{display:block;font-size:12px;font-weight:700;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;font:inherit}textarea{min-height:75px}.pass-wrap{position:relative}.pass-wrap input{padding-right:48px;-webkit-text-security:disc}.pass-wrap input.show-pass{-webkit-text-security:none}.eye-btn{position:absolute;right:6px;top:5px;width:40px;height:40px;border:0;background:transparent;border-radius:9px;font-size:20px;cursor:pointer}.primary{width:100%;border:0;background:var(--accent);color:#fff;padding:13px;border-radius:12px;margin-top:15px;font-weight:700}.primary:disabled{opacity:.6}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:25px;line-height:1.6}
 
 .bank-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:8px 0 14px}
 .bank-choice{border:1px solid var(--line);background:#fff;border-radius:11px;padding:7px 3px 6px;text-align:center;color:var(--text);font-size:10px;font-weight:700}
 .bank-choice.selected{border:2px solid var(--accent);background:#eef6ff}
 .bank-logo{width:34px;height:34px;border-radius:9px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:900}
-.b-cx{background:#1769aa}.b-nu{background:#6f22c9}.b-pp{background:#16a765}.b-it{background:#f58220}.b-br{background:#c91f2b}
-.b-sa{background:#d71920}.b-bb{background:#f0cf00;color:#173126}.b-mp{background:#55aee8}.b-in{background:#ff7a18}.b-c6{background:#171717}
-.b-btg{background:#1764a0}.b-sic{background:#21a33a}.b-sco{background:#075e70}.b-ban{background:#1764b2}.b-out{background:#cfd6dc;color:#263238}
 @media(max-width:430px){.bank-grid{grid-template-columns:repeat(5,1fr)}.bank-choice{font-size:9px}.bank-logo{width:31px;height:31px}}
 
-
+/* Telas de entrada (login e senha do cofre) */
+.gate{display:none;position:fixed;inset:0;background:var(--bg);z-index:10;overflow:auto;padding:24px 18px calc(24px + env(safe-area-inset-bottom,0px))}
+.gate.show{display:block}
+.gate-box{max-width:420px;margin:32px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}
+.gate-box h2{margin:0 0 6px;font-size:22px}
+.gate-box .type{font-size:13px;line-height:1.45}
+.gate-msg{margin-top:12px;font-size:13px;color:var(--danger);min-height:1em;line-height:1.4}
+.gate-msg.ok{color:var(--ok)}
+.gate .act{width:100%;margin-top:10px;padding:11px}
+.warn{background:#fff6e5;border:1px solid #f1d49a;border-radius:11px;padding:10px;font-size:12px;margin-top:12px;line-height:1.45}
+.check{display:flex;gap:8px;align-items:center;font-weight:400;font-size:13px;margin-top:14px}
+.check input{width:auto;margin:0}
 
 /* Bloqueio por biometria */
-body.biometric-locked #list, body.biometric-locked .toolbar, body.biometric-locked .tabs, body.biometric-locked main > .card, body.biometric-locked main > .notice { filter: blur(5px); pointer-events:none; user-select:none; }
+body.biometric-locked #list, body.biometric-locked .toolbar, body.biometric-locked .tabs, body.biometric-locked main > .card, body.biometric-locked main > .notice, body.biometric-locked main > .rowbtns { filter: blur(5px); pointer-events:none; user-select:none; }
 body.biometric-locked #lockBtn { opacity:1; }
 </style>
 </head>
 <body>
+
+<!-- Carregando -->
+<div class="gate show" id="loadingGate"><div class="gate-box" style="text-align:center"><h2>🔐 Cofre Seguro</h2><div class="type" id="loadingMsg">Carregando…</div></div></div>
+
+<!-- Login da conta -->
+<div class="gate" id="authGate"><div class="gate-box">
+  <h2>🔐 Cofre Seguro</h2>
+  <div class="type">Entre com sua conta para abrir o cofre. Suas senhas ficam guardadas na nuvem e aparecem em qualquer aparelho.</div>
+  <label for="authEmail">E-mail</label>
+  <input id="authEmail" type="email" autocomplete="username" autocapitalize="none" spellcheck="false">
+  <label for="authPass">Senha da conta</label>
+  <input id="authPass" type="password" autocomplete="current-password">
+  <button class="primary" id="btnLogin">Entrar</button>
+  <button class="act" id="btnSignup">Criar conta</button>
+  <button class="act" id="btnReset">Esqueci a senha da conta</button>
+  <div class="gate-msg" id="authMsg"></div>
+</div></div>
+
+<!-- Senha do cofre -->
+<div class="gate" id="vaultGate"><div class="gate-box">
+  <h2 id="vaultTitle">Senha do cofre</h2>
+  <div class="type" id="vaultInfo"></div>
+  <label for="vaultPass">Senha do cofre</label>
+  <input id="vaultPass" type="password" autocomplete="off">
+  <div id="vaultConfirmWrap">
+    <label for="vaultPass2">Repita a senha do cofre</label>
+    <input id="vaultPass2" type="password" autocomplete="off">
+    <div class="warn">⚠️ Guarde bem essa senha. Ela embaralha suas senhas antes de irem para a nuvem. Se esquecer, ninguém consegue recuperar os dados, nem o desenvolvedor.</div>
+  </div>
+  <label class="check"><input type="checkbox" id="vaultRemember" checked> Lembrar neste aparelho</label>
+  <button class="primary" id="btnVault">Abrir cofre</button>
+  <button class="act" id="btnVaultLogout">Sair da conta</button>
+  <div class="gate-msg" id="vaultMsg"></div>
+</div></div>
+
 <header>
 <button class="exit-btn" id="exitBtn" aria-label="Sair e bloquear">×</button>
 <h1>🔐 Cofre Seguro</h1><div class="sub">Senhas • Chaves Pix • Dados protegidos</div>
@@ -51,63 +94,232 @@ body.biometric-locked #lockBtn { opacity:1; }
 <main>
 <div class="tabs"><button class="tab active" id="tabSenhas">🔐 Senhas</button><button class="tab" id="tabPix">💠 Chaves Pix</button><button class="tab" id="tabOutros">📁 Outros</button></div>
 <div class="toolbar"><input class="search" id="search" placeholder="🔎 Pesquisar senha, Hotmail, banco..."><button class="add" id="add">＋</button></div>
-<div style="display:flex;gap:8px;margin-bottom:12px"><button class="act" style="flex:1" id="shareApp">📤 Compartilhar aplicativo</button><button class="act" style="flex:1" id="faceUnlock">🔐 Face ID / biometria</button></div>
+<div class="rowbtns" style="display:flex;gap:8px;margin-bottom:12px"><button class="act" style="flex:1" id="shareApp">📤 Compartilhar aplicativo</button><button class="act" style="flex:1" id="faceUnlock">🔐 Face ID / biometria</button></div>
+<div class="card" id="migrateCard" style="display:none">
+  <div class="title">📲 Senhas salvas só neste aparelho</div>
+  <div class="type" id="migrateInfo"></div>
+  <button class="primary" id="btnMigrate">☁️ Enviar para a nuvem</button>
+</div>
 <div class="card"><div class="row"><div><div class="title">🎨 Cor do aplicativo</div><div class="type">Verde não faz parte das opções.</div></div><select id="themePicker" style="width:auto;min-width:120px"><option value="blue">Azul</option><option value="yellow">Amarelo</option><option value="red">Vermelho</option><option value="white">Branco</option><option value="black">Preto</option></select></div></div>
-<div class="notice" id="firebaseStatus">☁️ Firebase: conectando...</div>
-<div class="notice">🔐 Face ID / biometria: ative no botão acima para proteger o acesso ao cofre neste aparelho. Não há senha mestra nesta versão.</div>
+<div class="notice" id="firebaseStatus">☁️ Conectando…</div>
+<div class="notice">🔐 Suas senhas são embaralhadas com a senha do cofre antes de irem para a nuvem. Ative o Face ID / biometria no botão acima para travar a tela neste aparelho.</div>
+<button class="act" style="width:100%;margin-bottom:6px" id="logoutBtn">🚪 Sair da conta</button>
 <section id="list"></section>
 </main>
-<footer>© 2026 Luis Ricardo — Todos os direitos reservados</footer>
+<footer>Desenvolvido por Luís Ricardo de Almeida Siqueira<br>© 2026 Luís Ricardo de Almeida Siqueira — Todos os direitos reservados.</footer>
 
 <div class="modal" id="modal"><div class="sheet"><button class="close" id="close">×</button><h2 id="modalTitle">Novo cadastro</h2><div id="form"></div></div></div>
 
-<script>
-(async function(){
-  try{
-    const {initializeApp}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js");
-    const {getAuth,signInAnonymously}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js");
-    const {getFirestore}=await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js");
-    const firebaseConfig={apiKey:"AIzaSyChZp2bseKgHuo97i6A_XFe1StEcBhcDkE",authDomain:"cofre-seguro-2642d.firebaseapp.com",projectId:"cofre-seguro-2642d",storageBucket:"cofre-seguro-2642d.firebasestorage.app",messagingSenderId:"1076024528728",appId:"1:1076024528728:web:082349d5c9877857a31f2d"};
-    const app=initializeApp(firebaseConfig);
-    const auth=getAuth(app);
-    getFirestore(app);
-    const el=document.getElementById("firebaseStatus");
-    if(el)el.textContent="☁️ Firebase inicializado • testando autenticação...";
-    try{
-      await signInAnonymously(auth);
-      if(el)el.textContent="☁️ Firebase conectado";
-    }catch(authError){
-      console.error("Firebase Auth:",authError);
-      if(el){
-        var code=authError&&authError.code?authError.code:"";
-        if(code==="auth/operation-not-allowed") el.textContent="☁️ Firebase inicializado • login anônimo desativado";
-        else if(code==="auth/api-key-not-valid") el.textContent="☁️ Firebase • chave da API inválida";
-        else el.textContent="☁️ Firebase • erro: "+(code||"desconhecido");
-      }
-    }
-  }catch(e){
-    console.error("Firebase:",e);
-    const el=document.getElementById("firebaseStatus");
-    if(el)el.textContent="☁️ Firebase: aguardando configuração";
-  }
-})();
-</script>
-<script>
-(function(){
-"use strict";
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,getDocs,collection,deleteDoc} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyChZp2bseKgHuo97i6A_XFe1StEcBhcDkE",authDomain:"cofre-seguro-2642d.firebaseapp.com",projectId:"cofre-seguro-2642d",storageBucket:"cofre-seguro-2642d.firebasestorage.app",messagingSenderId:"1076024528728",appId:"1:1076024528728:web:082349d5c9877857a31f2d"};
+const fbApp=initializeApp(firebaseConfig);
+const auth=getAuth(fbApp);
+const db=getFirestore(fbApp);
+
 var mode="senhas";
-var STORAGE_KEY="cofreSeguroDadosV2";
+var OLD_KEY="cofreSeguroDadosV2";
 var data=[];
+var user=null, vaultKey=null, vaultMeta=null;
 var BANKS=[["Caixa","CX"],["Nubank","NU"],["PicPay","PP"],["Itaú","IT"],["Bradesco","BR"],["Santander","SA"],["Banco do Brasil","BB"],["Mercado Pago","MP"],["Inter","IN"],["BTG Pactual","BTG"],["C6 Bank","C6"],["Sicredi","SIC"],["Sicoob","SIC"],["Banrisul","BAN"],["Outro","🏦"]];
 var themes={blue:["#1456a0","#1d6fca"],yellow:["#a86b00","#d89400"],red:["#9d1c2e","#c92b42"],white:["#374151","#4b5563"],black:["#111827","#1f2937"]};
 function $(id){return document.getElementById(id)}
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function bank(name){for(var i=0;i<BANKS.length;i++)if(BANKS[i][0]===name)return BANKS[i];return ["Outro","🏦"]}
-function loadData(){try{var raw=localStorage.getItem(STORAGE_KEY);if(raw){var parsed=JSON.parse(raw);if(Array.isArray(parsed))data=parsed;}}catch(e){console.error(e)}if(!data.length){data=[{id:1,kind:"senhas",nome:"Exemplo — Banco",usuario:"meu.usuario",senha:"senha-exemplo",obs:"Exemplo da interface — substitua ou exclua."},{id:2,kind:"pix",nome:"Minha chave principal",tipo:"Celular",chave:"(11) 99999-9999",banco:"Nubank",obs:"Exemplo da interface."}];saveData()}}
-function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}catch(e){console.error(e);alert("Não foi possível salvar os dados neste aparelho.")}}
-function setOpen(){
-  $("lockBtn").innerHTML="🔓 <div><b>Cofre aberto</b><small>Versão de teste sem senha</small></div>";
+function setStatus(t){$("firebaseStatus").textContent=t}
+function msg(id,t,ok){var el=$(id);el.textContent=t||"";el.classList.toggle("ok",!!ok)}
+
+/* ---------- Criptografia (AES-GCM com chave derivada da senha do cofre) ---------- */
+var te=new TextEncoder(), td=new TextDecoder();
+function toB64(buf){var a=new Uint8Array(buf),s="";for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s)}
+function fromB64(s){var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a}
+async function deriveKey(pass,salt){
+  var base=await crypto.subtle.importKey("raw",te.encode(pass),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},true,["encrypt","decrypt"]);
 }
+async function encryptObj(obj){
+  var iv=crypto.getRandomValues(new Uint8Array(12));
+  var ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},vaultKey,te.encode(JSON.stringify(obj)));
+  return {iv:toB64(iv),ct:toB64(ct)};
+}
+async function decryptObj(p,key){
+  var pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:fromB64(p.iv)},key||vaultKey,fromB64(p.ct));
+  return JSON.parse(td.decode(pt));
+}
+async function keyIsRight(key){
+  try{var v=await decryptObj(vaultMeta.verifier,key);return !!v&&v.ok==="cofre-seguro"}catch(e){return false}
+}
+function rememberSlot(){return "cofreChave_"+user.uid}
+async function rememberKey(){var raw=await crypto.subtle.exportKey("raw",vaultKey);localStorage.setItem(rememberSlot(),toB64(raw))}
+function forgetKey(){try{if(user)localStorage.removeItem(rememberSlot())}catch(e){}}
+async function loadRememberedKey(){
+  var s=localStorage.getItem(rememberSlot());if(!s)return null;
+  try{return await crypto.subtle.importKey("raw",fromB64(s),{name:"AES-GCM"},true,["encrypt","decrypt"])}catch(e){return null}
+}
+
+/* ---------- Telas ---------- */
+function showGate(id){["loadingGate","authGate","vaultGate"].forEach(function(g){$(g).classList.toggle("show",g===id)})}
+function authErrorText(e){
+  var c=(e&&e.code)||"";
+  if(c==="auth/invalid-credential"||c==="auth/wrong-password"||c==="auth/user-not-found"||c==="auth/invalid-login-credentials")return "E-mail ou senha incorretos.";
+  if(c==="auth/email-already-in-use")return "Esse e-mail já tem conta. Toque em Entrar.";
+  if(c==="auth/weak-password")return "A senha precisa ter pelo menos 6 caracteres.";
+  if(c==="auth/invalid-email")return "E-mail inválido.";
+  if(c==="auth/missing-password")return "Digite a senha.";
+  if(c==="auth/too-many-requests")return "Muitas tentativas. Espere alguns minutos e tente de novo.";
+  if(c==="auth/network-request-failed")return "Sem internet. Verifique a conexão.";
+  if(c==="auth/operation-not-allowed")return "O login por e-mail não está ativado no Firebase.";
+  if(c==="permission-denied")return "Seu acesso ao cofre não está liberado.";
+  return "Erro: "+(c||(e&&e.message)||"desconhecido");
+}
+function showVaultGate(){
+  var creating=!vaultMeta;
+  $("vaultTitle").textContent=creating?"Crie a senha do cofre":"Digite a senha do cofre";
+  $("vaultInfo").textContent=creating
+    ?"Conta: "+user.email+". Essa senha é só do cofre e protege suas senhas na nuvem. Pode ser diferente da senha da conta."
+    :"Conta: "+user.email+". Digite a senha do cofre para abrir suas senhas.";
+  $("vaultConfirmWrap").style.display=creating?"block":"none";
+  $("btnVault").textContent=creating?"Criar cofre":"Abrir cofre";
+  $("vaultPass").value="";$("vaultPass2").value="";msg("vaultMsg","");
+  showGate("vaultGate");
+}
+
+onAuthStateChanged(auth,async function(u){
+  vaultKey=null;vaultMeta=null;data=[];render();
+  if(!u){user=null;showGate("authGate");return}
+  if(u.isAnonymous){await signOut(auth);return}
+  user=u;
+  $("loadingMsg").textContent="Abrindo o cofre…";showGate("loadingGate");
+  try{
+    var snap=await getDoc(doc(db,"cofre",u.uid));
+    vaultMeta=snap.exists()?snap.data():null;
+    if(vaultMeta){
+      var k=await loadRememberedKey();
+      if(k&&await keyIsRight(k)){vaultKey=k;await openVault();return}
+    }
+    showVaultGate();
+  }catch(e){
+    console.error(e);
+    showGate("authGate");
+    msg("authMsg",authErrorText(e));
+  }
+});
+
+$("btnLogin").onclick=async function(){
+  var email=$("authEmail").value.trim(),pass=$("authPass").value;
+  if(!email||!pass){msg("authMsg","Preencha o e-mail e a senha.");return}
+  this.disabled=true;msg("authMsg","");
+  try{await signInWithEmailAndPassword(auth,email,pass);$("authPass").value=""}
+  catch(e){msg("authMsg",authErrorText(e))}
+  this.disabled=false;
+};
+$("btnSignup").onclick=async function(){
+  var email=$("authEmail").value.trim(),pass=$("authPass").value;
+  if(!email||!pass){msg("authMsg","Preencha o e-mail e uma senha para a nova conta.");return}
+  this.disabled=true;msg("authMsg","");
+  try{await createUserWithEmailAndPassword(auth,email,pass);$("authPass").value=""}
+  catch(e){msg("authMsg",authErrorText(e))}
+  this.disabled=false;
+};
+$("btnReset").onclick=async function(){
+  var email=$("authEmail").value.trim();
+  if(!email){msg("authMsg","Digite seu e-mail acima e toque de novo.");return}
+  try{await sendPasswordResetEmail(auth,email);msg("authMsg","Enviamos um e-mail para trocar a senha da conta.",true)}
+  catch(e){msg("authMsg",authErrorText(e))}
+};
+
+$("btnVault").onclick=async function(){
+  var btn=this,pass=$("vaultPass").value;
+  var creating=!vaultMeta;
+  if(pass.length<6){msg("vaultMsg","A senha do cofre precisa ter pelo menos 6 caracteres.");return}
+  if(creating&&pass!==$("vaultPass2").value){msg("vaultMsg","As duas senhas não são iguais.");return}
+  btn.disabled=true;msg("vaultMsg","Aguarde…",true);
+  try{
+    if(creating){
+      var salt=crypto.getRandomValues(new Uint8Array(16));
+      vaultKey=await deriveKey(pass,salt);
+      var meta={salt:toB64(salt),verifier:await encryptObj({ok:"cofre-seguro"}),criadoEm:Date.now()};
+      await setDoc(doc(db,"cofre",user.uid),meta);
+      vaultMeta=meta;
+    }else{
+      var key=await deriveKey(pass,fromB64(vaultMeta.salt));
+      if(!(await keyIsRight(key))){msg("vaultMsg","Senha do cofre incorreta.");btn.disabled=false;return}
+      vaultKey=key;
+    }
+    if($("vaultRemember").checked)await rememberKey();else forgetKey();
+    $("vaultPass").value="";$("vaultPass2").value="";msg("vaultMsg","");
+    await openVault();
+  }catch(e){console.error(e);msg("vaultMsg",authErrorText(e))}
+  btn.disabled=false;
+};
+
+async function logout(){forgetKey();vaultKey=null;data=[];render();await signOut(auth)}
+$("btnVaultLogout").onclick=logout;
+$("logoutBtn").onclick=function(){if(confirm("Sair da conta neste aparelho?"))logout()};
+
+/* ---------- Nuvem ---------- */
+async function openVault(){
+  showGate(null);
+  setStatus("☁️ Carregando suas senhas…");
+  var list=[];
+  var qs=await getDocs(collection(db,"cofre",user.uid,"itens"));
+  var jobs=[];
+  qs.forEach(function(d){
+    var p=d.data();
+    jobs.push(decryptObj(p).then(function(it){list.push({t:p.updatedAt||0,it:it})}).catch(function(e){console.error("Item ilegível",d.id,e)}));
+  });
+  await Promise.all(jobs);
+  list.sort(function(a,b){return b.t-a.t});
+  data=list.map(function(x){return x.it});
+  setStatus("☁️ Salvo na nuvem • "+user.email);
+  render();
+  checkMigration();
+}
+async function saveCloud(o){
+  var p=await encryptObj(o);
+  await setDoc(doc(db,"cofre",user.uid,"itens",String(o.id)),{iv:p.iv,ct:p.ct,updatedAt:Date.now()});
+}
+async function deleteCloud(id){await deleteDoc(doc(db,"cofre",user.uid,"itens",String(id)))}
+
+/* ---------- Trazer as senhas antigas do aparelho ---------- */
+function migratedSlot(){return "cofreMigrado_"+user.uid}
+function localItems(){
+  try{
+    var a=JSON.parse(localStorage.getItem(OLD_KEY)||"[]");
+    if(!Array.isArray(a))return [];
+    return a.filter(function(x){return x&&x.nome&&String(x.obs||"").indexOf("Exemplo da interface")!==0});
+  }catch(e){return []}
+}
+function pendingLocal(){
+  return localItems().filter(function(x){return !data.some(function(d){return String(d.id)===String(x.id)})});
+}
+function checkMigration(){
+  var items=localStorage.getItem(migratedSlot())?[]:pendingLocal();
+  $("migrateCard").style.display=items.length?"block":"none";
+  if(items.length)$("migrateInfo").textContent="Encontrei "+items.length+" cadastro(s) guardados só neste celular. Toque abaixo para enviar para a nuvem. A cópia do celular continua guardada.";
+}
+$("btnMigrate").onclick=async function(){
+  var btn=this,items=pendingLocal();
+  btn.disabled=true;btn.textContent="Enviando…";
+  var ok=0;
+  for(var i=0;i<items.length;i++){
+    try{await saveCloud(items[i]);data.unshift(items[i]);ok++}catch(e){console.error(e)}
+  }
+  btn.disabled=false;btn.textContent="☁️ Enviar para a nuvem";
+  render();
+  if(ok===items.length){
+    localStorage.setItem(migratedSlot(),"1");
+    $("migrateCard").style.display="none";
+    alert("✅ "+ok+" cadastro(s) enviados para a nuvem.");
+  }else{
+    alert("Enviados "+ok+" de "+items.length+". Verifique a internet e toque de novo para enviar o resto.");
+  }
+};
+
+/* ---------- Tela do cofre ---------- */
 function render(){
  var q=$("search").value.toLowerCase(),out="";
  for(var i=0;i<data.length;i++){
@@ -127,7 +339,7 @@ function render(){
 function openForm(item){
  $("modalTitle").textContent=item?"Editar cadastro":(mode==="senhas"?"Nova senha":(mode==="pix"?"Nova chave Pix":"Novo cadastro"));var f="";
  if(mode==="senhas"||mode==="outros"){
-  f='<label>Nome do cadastro</label><input id="nome" type="text" name="cofre_nome" autocomplete="off" autocorrect="off" spellcheck="false" value="'+esc(item?item.nome:"")+'"><label>Usuário / login</label><input id="usuario" type="text" name="cofre_usuario" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" value="'+esc(item?item.usuario:"")+'"><label>Senha</label><div class="pass-wrap"><div id="segredo" contenteditable="true" role="textbox" aria-label="Senha" data-form-type="other" data-lpignore="true" data-1p-ignore="true" inputmode="text" autocapitalize="none" spellcheck="false" style="-webkit-text-security:disc;min-height:42px;flex:1;outline:none;padding:10px 12px;">'+esc(item?item.senha:"")+'</div><button type="button" class="eye-btn" id="toggleSenha" aria-label="Mostrar ou ocultar senha">👁️</button></div><label>Observações</label><textarea id="obs">'+esc(item?item.obs:"")+'</textarea>';
+  f='<label>Nome do cadastro</label><input id="nome" type="text" name="cofre_nome" autocomplete="off" autocorrect="off" spellcheck="false" value="'+esc(item?item.nome:"")+'"><label>Usuário / login</label><input id="usuario" type="text" name="cofre_usuario" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" value="'+esc(item?item.usuario:"")+'"><label>Senha</label><div class="pass-wrap"><div id="segredo" contenteditable="true" role="textbox" aria-label="Senha" data-form-type="other" data-lpignore="true" data-1p-ignore="true" inputmode="text" autocapitalize="none" spellcheck="false" style="-webkit-text-security:disc;min-height:42px;flex:1;outline:none;padding:10px 12px;border:1px solid var(--line);border-radius:11px;padding-right:48px">'+esc(item?item.senha:"")+'</div><button type="button" class="eye-btn" id="toggleSenha" aria-label="Mostrar ou ocultar senha">👁️</button></div><label>Observações</label><textarea id="obs">'+esc(item?item.obs:"")+'</textarea>';
  }else{
   f='<label>Nome da chave</label><input id="nome" value="'+esc(item?item.nome:"")+'"><label>Tipo da chave</label><select id="tipo"><option>CPF</option><option>Celular</option><option>E-mail</option><option>Aleatória</option></select><label>Chave Pix</label><input id="chave" value="'+esc(item?item.chave:"")+'"><label>Banco / instituição <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><select id="banco"><option value="">Selecione o banco</option>';
   for(var i=0;i<BANKS.length;i++)f+='<option value="'+esc(BANKS[i][0])+'">'+esc(BANKS[i][0])+'</option>';
@@ -146,16 +358,20 @@ function openForm(item){
    };
  }
  if($("banco")){
-   function toggleBancoOutro(){ $("bancoOutro").style.display=$("banco").value==="Outro"?"block":"none"; }
+   var toggleBancoOutro=function(){ $("bancoOutro").style.display=$("banco").value==="Outro"?"block":"none"; };
    $("banco").onchange=toggleBancoOutro;
    toggleBancoOutro();
  }
  $("modal").classList.add("show");
 }
-function save(id){
+async function save(id){
  var o={id:id||Date.now(),kind:mode,nome:$("nome").value.trim(),obs:$("obs").value};if(!o.nome){alert("Informe um nome.");return}
  if(mode==="senhas"||mode==="outros"){o.usuario=$("usuario").value;o.senha=$("segredo").textContent}else{o.tipo=$("tipo").value;o.chave=$("chave").value;o.banco=$("banco").value;o.bancoOutro=$("bancoOutro")?$("bancoOutro").value.trim():"";o.titular=$("titular").value.trim();o.agencia=$("agencia").value.trim();o.conta=$("conta").value.trim()}
- if(id){for(var i=0;i<data.length;i++)if(data[i].id===id)data[i]=o}else data.unshift(o);saveData();$("modal").classList.remove("show");render();
+ var btn=$("saveBtn");btn.disabled=true;btn.textContent="Salvando…";
+ try{await saveCloud(o)}
+ catch(e){console.error(e);alert("Não foi possível salvar na nuvem. Verifique a internet e tente de novo.");btn.disabled=false;btn.textContent="💾 Salvar no cofre";return}
+ if(id){for(var i=0;i<data.length;i++)if(data[i].id===id)data[i]=o}else data.unshift(o);
+ $("modal").classList.remove("show");render();
 }
 function copyText(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){alert("Copiado!")}).catch(function(){prompt("Copie o conteúdo:",t)})}else prompt("Copie o conteúdo:",t)}
 function shareText(t){if(navigator.share){navigator.share({text:t}).catch(function(){})}else copyText(t)}
@@ -164,8 +380,21 @@ $("tabSenhas").onclick=function(){mode="senhas";$("tabSenhas").classList.add("ac
 $("tabPix").onclick=function(){mode="pix";$("tabPix").classList.add("active");$("tabSenhas").classList.remove("active");$("tabOutros").classList.remove("active");$("search").value="";render()};
 $("tabOutros").onclick=function(){mode="outros";$("tabOutros").classList.add("active");$("tabSenhas").classList.remove("active");$("tabPix").classList.remove("active");$("search").value="";render()};
 $("search").oninput=render;$("add").onclick=function(){openForm(null)};$("close").onclick=function(){$("modal").classList.remove("show")};
-$("list").onclick=function(e){var b=e.target.closest("button");if(!b)return;var a=b.getAttribute("data-action"),id=Number(b.getAttribute("data-id"));if(a==="copy")copyText(b.getAttribute("data-value")||"");if(a==="share")shareText(b.getAttribute("data-value")||"");if(a==="show")showPassword(id);if(a==="edit"){for(var i=0;i<data.length;i++)if(data[i].id===id){openForm(data[i]);break}}if(a==="delete"&&confirm("Deseja realmente excluir este cadastro?")){data=data.filter(function(x){return x.id!==id});saveData();render()}};
+$("list").onclick=async function(e){
+ var b=e.target.closest("button");if(!b)return;
+ var a=b.getAttribute("data-action"),id=Number(b.getAttribute("data-id"));
+ if(a==="copy")copyText(b.getAttribute("data-value")||"");
+ if(a==="share")shareText(b.getAttribute("data-value")||"");
+ if(a==="show")showPassword(id);
+ if(a==="edit"){for(var i=0;i<data.length;i++)if(data[i].id===id){openForm(data[i]);break}}
+ if(a==="delete"&&confirm("Deseja realmente excluir este cadastro?")){
+   try{await deleteCloud(id)}catch(err){console.error(err);alert("Não foi possível excluir. Verifique a internet e tente de novo.");return}
+   data=data.filter(function(x){return x.id!==id});render();
+ }
+};
 $("shareApp").onclick=function(){if(navigator.share){navigator.share({title:"Cofre Seguro",text:"Cofre Seguro — aplicativo",url:location.href}).catch(function(){})}else copyText(location.href)};
+
+/* ---------- Face ID / biometria (trava a tela neste aparelho) ---------- */
 var BIO_KEY="cofreSeguroWebAuthnV1";
 var bioLocked=false;
 function b64url(buf){var a=new Uint8Array(buf),s="";for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"")}
@@ -198,12 +427,10 @@ $("lockBtn").onclick=function(){if(bioLocked){unlockWithBiometric()}else{setBiom
 $("exitBtn").onclick=function(){setBiometricLocked(true)};
 $("themePicker").onchange=function(){applyTheme(this.value)};
 function applyTheme(n){var t=themes[n]||themes.blue;document.documentElement.style.setProperty("--accent",t[0]);document.documentElement.style.setProperty("--accent2",t[1]);try{localStorage.setItem("cofre-theme",n)}catch(e){}}
-try{var saved=localStorage.getItem("cofre-theme")||"blue";$("themePicker").value=saved;applyTheme(saved)}catch(e){}
-loadData();setOpen();render();
+try{var savedTheme=localStorage.getItem("cofre-theme")||"blue";$("themePicker").value=savedTheme;applyTheme(savedTheme)}catch(e){}
+render();
 if(hasBiometric()){setBiometricLocked(true)}else{setBiometricLocked(false)}
-})();
 </script>
-
 
 </body>
 </html>
