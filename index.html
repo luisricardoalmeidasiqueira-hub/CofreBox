@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cofre Seguro">
 <title>Cofre Seguro</title>
-<meta name="app-version" content="2026.09.24.1">
+<meta name="app-version" content="2026.09.24.2">
 <style>
 :root{--accent:#1456a0;--accent2:#1d6fca;--bg:#f4f7f5;--card:#fff;--text:#173126;--muted:#718078;--line:#dfe7e2;--danger:#b42318;--ok:#157347}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
@@ -103,10 +103,11 @@ body.biometric-locked #lockBtn { opacity:1; }
 <div class="card"><div class="row"><div><div class="title">🎨 Cor do aplicativo</div><div class="type">Verde não faz parte das opções.</div></div><select id="themePicker" style="width:auto;min-width:120px"><option value="blue">Azul</option><option value="yellow">Amarelo</option><option value="red">Vermelho</option><option value="white">Branco</option><option value="black">Preto</option></select></div></div>
 <div class="notice" id="firebaseStatus">☁️ Conectando…</div>
 <div class="notice">🔐 Suas senhas são embaralhadas com a senha do cofre antes de irem para a nuvem. Ative o Face ID / biometria no botão acima para travar a tela neste aparelho.</div>
-<button class="act" style="width:100%;margin-bottom:6px" id="logoutBtn">🚪 Sair da conta</button>
+<div class="notice" id="updateBanner" style="display:none;border-color:var(--accent)">🆕 Tem uma versão nova do aplicativo. Toque em <b>Atualizar aplicativo</b>.</div>
+<div class="rowbtns" style="display:flex;gap:8px;margin-bottom:6px"><button class="act" style="flex:1" id="updateBtn">🔄 Atualizar aplicativo</button><button class="act" style="flex:1" id="logoutBtn">🚪 Sair da conta</button></div>
 <section id="list"></section>
 </main>
-<footer>Desenvolvido por Luís Ricardo de Almeida Siqueira<br>© 2026 Luís Ricardo de Almeida Siqueira — Todos os direitos reservados.</footer>
+<footer>Desenvolvido por Luís Ricardo de Almeida Siqueira<br>© 2026 Luís Ricardo de Almeida Siqueira — Todos os direitos reservados.<br><span id="appVersion"></span></footer>
 
 <div class="modal" id="modal"><div class="sheet"><button class="close" id="close">×</button><h2 id="modalTitle">Novo cadastro</h2><div id="form"></div></div></div>
 
@@ -428,6 +429,30 @@ $("exitBtn").onclick=function(){setBiometricLocked(true)};
 $("themePicker").onchange=function(){applyTheme(this.value)};
 function applyTheme(n){var t=themes[n]||themes.blue;document.documentElement.style.setProperty("--accent",t[0]);document.documentElement.style.setProperty("--accent2",t[1]);try{localStorage.setItem("cofre-theme",n)}catch(e){}}
 try{var savedTheme=localStorage.getItem("cofre-theme")||"blue";$("themePicker").value=savedTheme;applyTheme(savedTheme)}catch(e){}
+/* ---------- Atualizar aplicativo ---------- */
+var APP_VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"";
+$("appVersion").textContent=APP_VERSION?"Versão "+APP_VERSION:"";
+async function updateApp(){
+  var btn=$("updateBtn");btn.disabled=true;btn.textContent="Atualizando…";
+  try{
+    if("serviceWorker" in navigator){var regs=await navigator.serviceWorker.getRegistrations();for(var i=0;i<regs.length;i++)await regs[i].unregister()}
+    if(window.caches){var keys=await caches.keys();for(var j=0;j<keys.length;j++)await caches.delete(keys[j])}
+  }catch(e){console.error(e)}
+  var url=location.pathname+"?v="+Date.now()+location.hash;
+  location.replace(url);
+}
+$("updateBtn").onclick=updateApp;
+async function checkNewVersion(){
+  try{
+    var r=await fetch(location.pathname+"?check="+Date.now(),{cache:"no-store"});
+    var html=await r.text();
+    var m=html.match(/name="app-version" content="([^"]+)"/);
+    if(m&&APP_VERSION&&m[1]!==APP_VERSION)$("updateBanner").style.display="block";
+  }catch(e){}
+}
+checkNewVersion();
+document.addEventListener("visibilitychange",function(){if(!document.hidden)checkNewVersion()});
+
 render();
 if(hasBiometric()){setBiometricLocked(true)}else{setBiometricLocked(false)}
 </script>
